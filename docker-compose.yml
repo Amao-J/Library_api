@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - library-network
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: na52blueivy
+      POSTGRES_DB: library_db
+    ports:
+      - "5432:5432"
+    networks:
+      - library-network
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=postgresql://postgres:na52blueivy@db:5432/library_db
+    depends_on:
+      - redis
+      - db
+    networks:
+      - library-network
+
+networks:
+  library-network:
+    driver: bridge
